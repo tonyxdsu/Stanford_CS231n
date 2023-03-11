@@ -42,7 +42,9 @@ def softmax_loss_naive(W, X, y, reg):
       scores = X[i].dot(W)
       correct_class_score = scores[y[i]]
 
+      # exp_scores: shape (C,) exp class scores of a single example
       exp_scores = np.zeros(num_classes)
+      # TODO can this number become far too large (ie scores[j] ~ 20)
       total_exp_score = 0
       for j in range(num_classes):
         exp_scores[j] = np.exp(scores[j])
@@ -64,7 +66,7 @@ def softmax_loss_naive(W, X, y, reg):
     dW /= num_train
 
     loss += reg * np.sum(W * W)
-    dW += reg * 2 * (W)
+    dW += reg * 2 * W
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
     return loss, dW
@@ -78,7 +80,7 @@ def softmax_loss_vectorized(W, X, y, reg):
     """
     # Initialize the loss and gradient to zero.
     loss = 0.0
-    dW = np.zeros_like(W)
+    # dW = np.zeros_like(W)
 
     #############################################################################
     # TODO: Compute the softmax loss and its gradient using no explicit loops.  #
@@ -87,6 +89,26 @@ def softmax_loss_vectorized(W, X, y, reg):
     # regularization!                                                           #
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+
+    num_classes = W.shape[1]
+    num_train = X.shape[0]
+
+    exp_scores = np.exp(np.matmul(X, W))
+    total_exp_scores = np.sum(exp_scores, axis=1) # TODO numeric instability?
+
+    # grad wrt w_j for grad calculation and loss calculation
+    exp_scores_proportion = exp_scores / total_exp_scores[:, np.newaxis]
+
+    loss += np.sum(-np.log(exp_scores_proportion[np.arange(num_train), y]))
+    loss /= num_train
+    loss += reg * np.sum(W * W) 
+
+    # grad wrt w_j for j == y[i] has extra -X[i] term in its derivative
+    exp_scores_proportion[np.arange(num_train), y] -= 1
+
+    dW = np.matmul(X.T, exp_scores_proportion)
+    dW /= num_train
+    dW += reg * 2 * W
 
     pass
 
