@@ -27,8 +27,17 @@ def affine_forward(x, w, b):
     # will need to reshape the input into rows.                               #
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    N = x.shape[0]
+    D = w.shape[0]
 
-    pass
+    # TODO time complexity of reshape() is O(1) for this operation?
+    x_flattened = x.reshape(N, D)
+    out = np.matmul(x_flattened, w) + b
+
+    # TODO add b separately, or combine into X and W matmul?
+    # probably better cache performance, but why else?
+    # but is inserting new column/row into X/W constant time?
+    # better to pass in x and w with additional column of 1s in x, and row of weights for b in w, probably
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
@@ -60,8 +69,16 @@ def affine_backward(dout, cache):
     # TODO: Implement the affine backward pass.                               #
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    N = x.shape[0]
+    D = w.shape[0]
 
-    pass
+    # TODO time complexity of reshape() is O(1) for this operation?
+    x_flattened = x.reshape(N, D)
+
+    dw = np.matmul(x_flattened.T, dout)
+    dx = np.matmul(dout, w.T).reshape(x.shape)
+    db = np.sum(dout, axis=0)
+
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
