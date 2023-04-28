@@ -1,4 +1,5 @@
 from builtins import range
+from IPython.core.magics import NamespaceMagics
 import numpy as np
 
 
@@ -784,15 +785,38 @@ def svm_loss(x, y):
     - loss: Scalar giving the loss
     - dx: Gradient of the loss with respect to x
     """
-    loss, dx = None, None
+    # loss, dx = None, None
 
     ###########################################################################
     # TODO: Copy over your solution from A1.
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    N = x.shape[0]
+    # correct_class_scores: shape (N,)
+    correct_class_scores = x[np.arange(N), y]
 
-    pass
+    # margins: shape (N, C)
+    # correct_class_scores[:, np.newaxis]: shape [N, 1]
+    margins = np.maximum(0, x - correct_class_scores[:, np.newaxis] + 1) # note delta = 1
 
+    # set correct class margin to 0
+    margins[np.arange(N), y] = 0
+
+    loss = np.sum(margins)
+    loss /= N
+
+    # exceeds_margin: shape (N, C)
+    exceeds_margin = margins
+    exceeds_margin[margins > 0] = 1
+
+    # num_exceeds_margin: shape (N,)
+    num_exceeds_margin = np.sum(exceeds_margin, axis = 1)
+
+    # set element of the correct class to -total number of classes that exceed margin
+    exceeds_margin[np.arange(N), y] = -num_exceeds_margin
+
+    dx = exceeds_margin / N
+    
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
     #                             END OF YOUR CODE                            #
