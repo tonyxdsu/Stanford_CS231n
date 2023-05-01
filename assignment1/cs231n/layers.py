@@ -838,14 +838,30 @@ def softmax_loss(x, y):
     - loss: Scalar giving the loss
     - dx: Gradient of the loss with respect to x
     """
-    loss, dx = None, None
+    loss, dx = 0.0, None
 
     ###########################################################################
     # TODO: Copy over your solution from A1.
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    N = x.shape[0]
+
+    exp_scores = np.exp(x)
+    total_exp_scores = np.sum(exp_scores, axis=1) # TODO numeric instability?
+
+    # grad wrt x for grad calculation and loss calculation
+    exp_scores_proportion = exp_scores / total_exp_scores[:, np.newaxis]
+
+    loss += np.sum(-np.log(exp_scores_proportion[np.arange(N), y]))
+    loss /= N
+
+    dx = exp_scores_proportion
+
+    # grad wrt x[i][y[i]] has extra -1 in its derivative
+    dx[np.arange(N), y] -= 1
+
+    dx /= N
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
