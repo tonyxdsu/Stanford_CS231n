@@ -54,8 +54,12 @@ class TwoLayerNet(object):
         # weights and biases using the keys 'W2' and 'b2'.                         #
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+        
+        self.params["W1"] = np.random.normal(loc=0.0, scale=weight_scale, size=(input_dim, hidden_dim))
+        self.params["b1"] = np.zeros(hidden_dim)
 
-        pass
+        self.params["W2"] = np.random.normal(loc=0.0, scale=weight_scale, size=(hidden_dim, num_classes))
+        self.params["b2"] = np.zeros(hidden_dim)
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ############################################################################
@@ -88,7 +92,15 @@ class TwoLayerNet(object):
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
+        # affine
+        a1_out, a1_cache = affine_forward(X, self.params["W1"], self.params["b1"])
+        # relu
+        r1_out, r1_cache = relu_forward(a1_out)
+
+        # affine
+        a2_out, a2_cache = affine_forward(r1_out, self.params["W2"], self.params["b2"])
+
+
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ############################################################################
@@ -97,6 +109,7 @@ class TwoLayerNet(object):
 
         # If y is None then we are in test mode so just return scores
         if y is None:
+            scores = a2_out
             return scores
 
         loss, grads = 0, {}
@@ -112,7 +125,12 @@ class TwoLayerNet(object):
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
+        # softmax
+        loss, grads = softmax_loss(a2_out, y)
+
+        # regularization
+        loss += 0.5 * self.reg * np.sum(self.params["W1"] * self.params["W1"])
+        loss += 0.5 * self.reg * np.sum(self.params["W2"] * self.params["W2"])
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ############################################################################
