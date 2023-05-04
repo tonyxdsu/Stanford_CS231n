@@ -59,7 +59,7 @@ class TwoLayerNet(object):
         self.params["b1"] = np.zeros(hidden_dim)
 
         self.params["W2"] = np.random.normal(loc=0.0, scale=weight_scale, size=(hidden_dim, num_classes))
-        self.params["b2"] = np.zeros(hidden_dim)
+        self.params["b2"] = np.zeros(num_classes)
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ############################################################################
