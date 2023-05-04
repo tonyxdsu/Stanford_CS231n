@@ -95,10 +95,10 @@ class TwoLayerNet(object):
         # affine
         a1_out, a1_cache = affine_forward(X, self.params["W1"], self.params["b1"])
         # relu
-        r1_out, r1_cache = relu_forward(a1_out)
+        relu_out, relu_cache = relu_forward(a1_out)
 
         # affine
-        a2_out, a2_cache = affine_forward(r1_out, self.params["W2"], self.params["b2"])
+        a2_out, a2_cache = affine_forward(relu_out, self.params["W2"], self.params["b2"])
 
 
 
@@ -125,12 +125,22 @@ class TwoLayerNet(object):
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        # softmax
-        loss, grads = softmax_loss(a2_out, y)
+        # wrt softmax loss
+        loss, grads_upstream_from_softmax = softmax_loss(a2_out, y)
+        loss += 0.5 * self.reg * np.sum(self.params["W1"] ** 2)
+        loss += 0.5 * self.reg * np.sum(self.params["W2"] ** 2)
 
-        # regularization
-        loss += 0.5 * self.reg * np.sum(self.params["W1"] * self.params["W1"])
-        loss += 0.5 * self.reg * np.sum(self.params["W2"] * self.params["W2"])
+        # wrt affine layer 2
+        grads_upstream_from_affine_2, grads["W2"], grads["b2"] = affine_backward(grads_upstream_from_softmax, a2_cache)
+        grads["W2"] += self.reg * self.params["W2"] # not 2 * reg * W because of 0.5 * W^2 in loss function
+
+        # wrt ReLU layer
+        grads_upstream_from_relu = relu_backward(grads_upstream_from_affine_2, relu_cache)
+
+        # wrt affine layer 1
+        grads_upstream_from_affine_1, grads["W1"], grads["b1"] = affine_backward(grads_upstream_from_relu, a1_cache) 
+        grads["W1"] += self.reg * self.params["W1"] # not 2 * reg * W because of 0.5 * W^2 in loss function
+
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ############################################################################
